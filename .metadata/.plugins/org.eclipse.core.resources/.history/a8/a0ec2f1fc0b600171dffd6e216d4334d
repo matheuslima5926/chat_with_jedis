@@ -1,0 +1,26 @@
+package DAO;
+
+import entity.User;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisException;
+
+public class UserDAO {
+	private static Jedis dao = JedisDAO.connectJedis("localhost");
+	public static boolean saveUser(User user){
+		try{
+			user.setName(user.getName().trim().toLowerCase());
+			user.setNickname(user.getNickname().trim().toLowerCase());
+			dao.hset("user: {nickname:" + user.getNickname(), "name: ", user.getName() + "}");
+			return true;
+		}catch(JedisException exception){
+			throw exception;
+		}
+	}
+	public static User findUserByNick(User user){
+		
+		if(dao.hget("user: {nickname:" , user.getNickname() + "}")!= null){
+			return user;
+		}
+		return null;
+	}
+}

@@ -1,0 +1,16 @@
+package DAO;
+
+import entity.User;
+import redis.clients.jedis.Jedis;
+
+public class UserDAO {
+	public static boolean saveUser(User user){
+		return false;
+	}
+	public static User findUserByNick(User user){
+		Jedis dao = JedisDAO.connectJedis("localhost");
+		if(dao.get("user",user.getNickname())){
+			
+		}
+	}
+}

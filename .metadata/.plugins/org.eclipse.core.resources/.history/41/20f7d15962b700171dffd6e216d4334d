@@ -1,0 +1,37 @@
+package DAO;
+
+import java.awt.List;
+import java.util.ArrayList;
+import java.util.Map;
+
+import javax.imageio.IIOException;
+
+import entity.User;
+import redis.clients.jedis.Jedis;
+
+public class Run {
+
+	public static void main(String[] args) {
+		String select = "";
+		do{
+			System.out.println("selecione a operação");
+			System.out.println("1- cadastrar");
+			System.out.println("2- mandar mensagem");
+			System.out.println("3- ver mensagens enviadas");
+			System.out.println("0 - sair");
+			switch(select){
+			case "1":
+				break;
+			case "2":
+				break;
+			case"3":
+				break;
+			default:
+				System.out.println("opção inválida!");
+				break;
+			}
+		}while(select != "0");
+		
+	}
+
+}

@@ -1,0 +1,7 @@
+
+public class User {
+ private String apelido;
+ private String nome;
+ private List<T> stringster;
+
+}

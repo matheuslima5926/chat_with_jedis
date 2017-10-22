@@ -1,0 +1,12 @@
+package DAO;
+
+import entity.User;
+
+public class UserDAO {
+	public static boolean saveUser(User user){
+		return false;
+	}
+	public static User findUserByNick(User user){
+		Jedis dao = JedisDAO.connectJedis("localhost");
+	}
+}

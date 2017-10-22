@@ -1,0 +1,5 @@
+package DAO;
+
+public class Jedis {
+	Jedis dao = new Jedis("localhost");
+}
