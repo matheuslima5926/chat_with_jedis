@@ -1,0 +1,63 @@
+package DAO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Mensagem {
+	public String id;
+    public String texto;
+    public String autor;
+    public String dataHora;
+    public List<String> destinatarios = new ArrayList<String>();
+    public List<String> Respostas = new ArrayList<String>();
+    public String pai;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTexto() {
+        return texto;
+    }
+
+    public void setTexto(String texto) {
+        this.texto = texto;
+    }
+     public String getAutor() {
+        return autor;
+    }
+
+    public void setAutor(String autor) {
+        this.autor = autor;
+    }
+
+    public String getDataHora() {
+        return dataHora;
+    }
+
+    public void setDataHora(String dataHora) {
+        this.dataHora = dataHora;
+    }
+    
+
+    public List<String> getDestinatarios() {
+        return destinatarios;
+    }
+
+    public void setDestinatarios(List<String> destinatarios) {
+        this.destinatarios = destinatarios;
+    }
+
+
+    public String getPai() {
+        return pai;
+    }
+
+    public void setPai(String pai) {
+        this.pai = pai;
+    }
+}

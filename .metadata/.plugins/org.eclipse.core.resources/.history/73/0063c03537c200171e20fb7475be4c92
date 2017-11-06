@@ -1,0 +1,213 @@
+package DAO;
+
+import java.security.Timestamp;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import com.google.gson.Gson;
+
+import entity.Message;
+import entity.User;
+import redis.clients.jedis.Jedis;
+
+public class Run {
+
+	public static void main(String[] args) {
+		String select = null;
+		User user = new User();
+		User sendTo = new User();
+		Message message = new Message();
+		Gson json = new Gson();
+	do{
+		Jedis jedis = new Jedis("localhost");
+		System.out.println("---------GENERIC CHAT SYSTEM v0.1.0 -----------");
+			System.out.println("selecione a operação");
+			System.out.println("1- cadastrar");
+			System.out.println("2- mandar mensagem");
+			System.out.println("3- ver mensagens recebidas");
+			System.out.println("4- responder mensagens");
+			System.out.println("5- ver mensagens enviadas");
+			System.out.println("0 - sair");
+		System.out.println("---------all rights reserved to matheuslima5926 -----------");
+			Scanner scanner = new Scanner(System.in);
+			select = scanner.nextLine().trim();
+			switch(select){
+			case "1":
+				
+				user = new User();
+			
+				
+				System.out.println("Digite o seu nome:");
+				user.setName(scanner.nextLine());
+				
+				if (!user.getName().isEmpty()){
+					
+					System.out.println("Digite o seu apelido:");
+					user.setNickname(scanner.nextLine());
+					
+					if (!user.getNickname().trim().isEmpty() || user.getNickname() == null || !user.getName().trim().isEmpty() || user.getName() == null ){
+						
+						if (UserDAO.findUserByNick(user) == null){
+
+							UserDAO.saveUser(user);
+							System.out.println("cadastro realizado com sucesso!");
+							System.out.println("------- digite 0 para sair -------");
+							scanner.next();
+						
+						}else{
+							System.out.println("apelido já existente ou é inválido!");
+							System.out.println("------- digite 0 para sair -------");
+							scanner.next();
+							break;
+						}
+					}
+						
+				}else{
+					
+					System.out.println("nome inválido!");
+					System.out.println("------- digite 0 para sair -------");
+					scanner.next();
+					break;
+				} 
+			case "2":
+				message = new Message();
+				
+				ArrayList<String> auxSendTo = new ArrayList<>();
+				System.out.println("digite o seu apelido");
+				User userSender = new User();
+				     sendTo = new User();
+				userSender.setNickname(scanner.nextLine().trim());
+				
+				if (userSender.getNickname().trim() != null){
+					String option = null;
+					do{
+						System.out.println("digite o apelido do destinatário: ");
+						sendTo.setNickname(scanner.nextLine().trim());
+						if (UserDAO.findUserByNick(sendTo) != null){
+							auxSendTo.add(sendTo.getNickname());
+						}else{
+							System.out.println("destinatário inválido!");
+						}
+						System.out.println("deseja adicionar mais destinatários? s/n");
+						option = scanner.nextLine().trim();
+					}while (!option.equals("n".trim().toLowerCase()));
+					
+						if (UserDAO.findUserByNick(userSender) != null){
+							 System.out.println("digite a mensagem:");
+							 
+							 message.setText(scanner.nextLine());
+							 if (message.getText().isEmpty()){
+								 System.out.println("a mensagem não pode ser vazia!");
+								 break;
+								
+							 }else{
+								     ArrayList<String> recivedMessagesFromUserSender = new ArrayList<>();
+								                       recivedMessagesFromUserSender = userSender.getMessagesRecived();
+								                       
+								     ArrayList<String> sendedMessagesFromUserSender = new ArrayList<>();
+								     				   sendedMessagesFromUserSender = userSender.getMessagesSended();
+								     				   
+								     ArrayList<String> recivedMessagesFromUserSendTo = new ArrayList<>();
+								     ArrayList<String> sendedMessagesFromUserSendTo = new ArrayList<>();
+								     
+								     
+									 String idMsg = String.valueOf(System.currentTimeMillis()); //valor do Id da mensagem
+									 System.out.println("id da mensagem: "+idMsg.toString());
+									 String parserString = jedis.get("user:"+userSender.getNickname()); //variável que transforma o json em usuário
+									 userSender = json.fromJson(parserString, User.class);
+									 System.out.println("userSender: " + userSender.getNickname());
+									 
+								     message.setIdMessage(idMsg);
+									 message.setSender(userSender.getNickname());
+									 message.setSendTo(auxSendTo);
+									 message.setDate(String.valueOf(LocalDate.now()));
+									 
+									 System.out.println("message Id: "+message.getIdMessage());
+									 sendedMessagesFromUserSender.add(idMsg);
+									 userSender.setMessagesSended(sendedMessagesFromUserSender);
+//									 jedis.set("message"+message.getIdMessage(), json.toJson(message));
+  									 jedis.set("user:"+userSender.getNickname(), json.toJson(userSender));
+									 
+									 System.out.println("mensgem: " + jedis.get("message:"+message.getIdMessage()));
+									 System.out.println("userSender: " + jedis.get("user:"+userSender.getNickname()));
+
+									 scanner.next();
+							 }
+							 
+						}else{
+							System.out.println("usuario não cadastrado");
+						}
+					}
+					else{
+						System.out.println("apelido invalido!");
+					}	
+				
+				break;
+			case "3":
+					System.out.println("digite seu apelido:");
+					user = new User();
+				    user.setNickname(scanner.nextLine().trim());
+				 
+				    //
+				    if(user.getNickname() != null && UserDAO.findUserByNick(user) != null){
+				    	
+//				    	 for (String str : user.getMessagesRecived()) {
+//		                     json = new Gson();
+//		                     jedis.get("message:" + str);
+//		                     
+//				    		 json = jedis.get(obj.toString());
+//				    		 
+//		                        msg = gson.fromJson(json, Mensagem.class);
+//		                        
+//		                        if (null == msg) {
+//		                            System.out.println("Não encontrei nenhuma mensagem!" + msg.autor);
+//		                        } else {
+//		                            String json1 = jedis.get("usuario:" + msg.autor);
+//		                            user = gson.fromJson(json1, Usuario.class);
+//		                        };
+//		                        String recebeRespostaNome = msg.autor;
+//		                        String paiMSG = msg.id;
+//
+//		                        if (null == msg.pai) {
+//		                            System.out.println("Mensagem de " + user.nome + " data: " + msg.dataHora + "\n" + msg.texto);
+//		                        } else {
+//		                            System.out.println("Resposta de " + user.nome + " data: " + msg.dataHora + "\n" + msg.texto);
+//		                        }
+//				    	 }
+				    	
+				    	
+				    }else{
+				    	System.out.println("usuário não localizado!");
+				    }
+				break;
+			case "4":
+				System.out.println("digite o apelido do caboclo: ");
+				user = new User();
+				user.setNickname(scanner.nextLine().trim());
+				System.out.println(UserDAO.findUserByNick(user));
+				System.out.println("digite 0 para sair my friend!");
+				scanner.next();
+				
+				break;
+				
+			case "0":
+				System.out.println("Good bye. See you soon!");
+				
+				break;
+			default:
+				System.out.println("opção inválida!");
+				System.out.println("------- digite 0 para sair -------");
+				scanner.next();
+				
+				break;
+			}
+			jedis.close();
+		}while(!select.equals("0"));
+
+
+		
+	}
+
+}

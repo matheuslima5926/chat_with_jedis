@@ -1,0 +1,194 @@
+package DAO;
+
+import java.security.Timestamp;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Scanner;
+
+import com.google.gson.Gson;
+
+import redis.clients.jedis.Jedis;
+
+public class MainClassNemLoco {
+
+	public static void main(String[] args) {
+		 Jedis jedis = new Jedis("localhost");
+	        Date data = new Date(0);
+	        Usuario1 user = new Usuario1();
+	        Mensagem msg = new Mensagem();
+	        DateFormat dateForm = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	        Gson gson = new Gson();
+	        String menu = "n";
+
+	        while (menu.equals("n")) {
+	            System.out.println("------------------------\n|   1 - Criar Usuário  |\n------------------------\n| 2 - Enviar Mensagem  |\n------------------------\n|  3 - Ler Mensagem    |\n------------------------\n|   0 - Sair           |\n------------------------\n");
+	            System.out.println("Escolha a opção!");
+	            Scanner teclado = new Scanner(System.in);
+	            String op = teclado.nextLine();
+	            switch (op) {
+
+	                case ("1"):
+
+	                    System.out.println("\n------------------------\n|  Criar Usuário       |\n------------------------\n");
+
+	                    System.out.println("Digite o Nome:\n");
+	                    user.nome = teclado.nextLine();
+	                    System.out.println("Digite o Apelido:\n");
+	                    user.apelido = teclado.nextLine();
+	                    //busca o Usuario1
+	                    //buscar.buscarUserPorKey(user.apelido);
+	                    while (jedis.get("Usuario1:" + user.apelido) != null) {
+	                        System.out.println("Já existe Usuário com esse apelido! escolha outro Apelido: ");
+	                        user.apelido = teclado.nextLine();
+	                    }
+	                    ;
+	                    user.data = dateForm.format(data); //get timestamp java
+	                    jedis.set("Usuario1:" + user.apelido, gson.toJson(user)); // converter em objeto de novo string json = jedis.get("Usuario1:",+Usuario1.apelido); Usuario1= gson.fromJson(json,Usuario1.class);
+	                    if(null !=jedis.get("Usuario1:" + user.apelido) ){
+	                     System.out.println("Usuario1 Cadastradoo!");   
+	                    }else{
+	                        System.out.println("Não Consegui Cadastrar");
+	                    };
+	                    break;
+
+	                case ("2"):
+	                    System.out.println("\n------------------------\n|    Enviar Mensagem   |\n------------------------\n");
+	                    System.out.println("Qual é o Seu Apelido?");
+	                    user.apelido = teclado.nextLine();
+	                    while (jedis.get("Usuario1:" + user.apelido) == null) {
+	                        System.out.println("Não encontrei ninguem com: " + user.apelido);
+	                        user.apelido = teclado.nextLine();
+	                    }
+
+	                    String json = jedis.get("Usuario1:" + user.apelido);
+	                    user = gson.fromJson(json, Usuario1.class);
+
+	                    msg.autor = user.apelido;
+	                    System.out.println("Bem vindo " + user.nome);
+	                    msg.id = "msg_" + String.valueOf(System.currentTimeMillis());
+	                    String idmsg = msg.id;
+	                    System.out.println(idmsg);
+	                    user.msgenviadas.add(idmsg);
+	                    jedis.set("Usuario1:" + user.apelido, gson.toJson(user));
+
+	                    System.out.println("Para quem é a mensagem?: ");
+	                    user.apelido = teclado.nextLine();
+
+	                    while (jedis.get("Usuario1:" + user.apelido) == null) {
+	                        System.out.println("Não encontrei ninguem com: " + user.apelido);
+	                        user.apelido = teclado.nextLine();
+	                    }
+
+	                    msg.destinatarios.add(user.apelido);
+
+	                    json = jedis.get("Usuario1:" + user.apelido);
+	                    user = gson.fromJson(json, Usuario1.class);
+	                    user.msgrecebidas.add(idmsg);
+	                    jedis.set("Usuario1:" + user.apelido, gson.toJson(user));
+	                    System.out.println("Quer Mandar essa mensagem para mais alguem?");
+	                    String verif = teclado.nextLine();
+	                    while (!verif.equals("n")) {
+	                        System.out.println("Para quem mais é a mensagem?: ");
+	                        user.apelido = teclado.nextLine();
+
+	                        while (jedis.get("Usuario1:" + user.apelido) == null) {
+	                            System.out.println("Não encontrei ninguem com: " + user.apelido);
+	                            user.apelido = teclado.nextLine();
+	                        }
+	                        msg.destinatarios.add(user.apelido);
+	                        json = jedis.get("Usuario1:" + user.apelido);
+	                        user = gson.fromJson(json, Usuario1.class);
+	                        user.msgrecebidas.add(msg.id);
+	                        jedis.set("Usuario1:" + user.apelido, gson.toJson(user));
+	                        System.out.println("Mais Alguem?");
+	                        verif = teclado.nextLine();
+	                        System.out.println("Mensagem Enviada!");
+
+	                    }
+
+	                    msg.dataHora = dateForm.format(data);
+
+	                    jedis.set("Usuario1:" + user.apelido, gson.toJson(user));
+	                    System.out.println("Digite a Mensagem: ");
+	                    msg.texto = teclado.nextLine();
+	                    while (msg.texto.equals("")) {
+	                        System.out.println("A mensagem *NÃO PODE SER VAZIA*\nDigite a Mensagem: ");
+	                        msg.texto = teclado.nextLine();
+	                    }
+	                    jedis.set("mensagem:" + idmsg, gson.toJson(msg));
+
+	                    break;
+
+	                case ("3"):
+	                    System.out.println("\n------------------------\n|   Ler Mensagem       |\n------------------------\n");
+	                    System.out.println("Digite o Apelido: \n");
+	                    user.apelido = teclado.nextLine();
+	                    json = jedis.get("Usuario1:" + user.apelido);
+	                    user = gson.fromJson(json, Usuario1.class);
+	                    String respondeNome = user.apelido;
+	                    //for (int i = 0; i < user.msgrecebidas.size(); i++) {
+	                    for (String s : user.msgrecebidas) {
+	                        //json = jedis.get("mensagem:" + user.msgrecebidas.get(i));
+	                        json = jedis.get("mensagem:" + s);
+	                        msg = gson.fromJson(json, Mensagem.class);
+	                        if (null == msg) {
+	                            System.out.println("Não encontrei nenhuma mensagem!" + msg.autor);
+	                        } else {
+	                            String json1 = jedis.get("Usuario1:" + msg.autor);
+	                            user = gson.fromJson(json1, Usuario1.class);
+	                        };
+	                        String recebeRespostaNome = msg.autor;
+	                        String paiMSG = msg.id;
+
+	                        if (null == msg.pai) {
+	                            System.out.println("Mensagem de " + user.nome + " data: " + msg.dataHora + "\n" + msg.texto);
+	                        } else {
+	                            System.out.println("Resposta de " + user.nome + " data: " + msg.dataHora + "\n" + msg.texto);
+	                        }
+	                        ;// agora eu tenho que fazer a resposta para cada mensagem
+	                        System.out.println("Você quer responder essa mensagem? s or n");
+	                        String opR = teclado.nextLine();
+	                        if ("s".equals(opR)) {
+	                            System.out.println("\n------------------------\n|   Responder          |\n------------------------\n");
+	                            msg.id = "resp_" + String.valueOf(System.currentTimeMillis());
+	                            String respID = msg.id;
+	                            json = jedis.get("Usuario1:" + recebeRespostaNome);
+	                            user = gson.fromJson(json, Usuario1.class);
+	                            user.msgrecebidas.add(respID);
+	                            jedis.set("Usuario1:" + recebeRespostaNome, gson.toJson(user));
+	                            // editar o Usuario1 que ta respondendo
+	                            json = jedis.get("Usuario1:" + respondeNome);
+	                            user = gson.fromJson(json, Usuario1.class);
+	                            user.msgenviadas.add(respID);
+	                            jedis.set("Usuario1:" + respondeNome, gson.toJson(user));
+	                            msg.autor = respondeNome;
+	                            System.out.println("Digite a mensagem de Resposta: ");
+	                            msg.texto = teclado.nextLine();
+	                            msg.destinatarios.clear();
+	                            msg.destinatarios.add(recebeRespostaNome);
+	                            msg.Respostas.add(respID);
+	                            msg.pai = paiMSG;
+	                            jedis.set("mensagem:" + respID, gson.toJson(msg));
+	                            opR = "n";
+	                        }
+	                        ;
+	                    }
+	                    ;
+
+	                    break;
+
+	                case ("0"):
+	                    System.out.println("Saindo...");
+	                    System.out.println(dateForm.format(data));
+	                    break;
+	                default:
+	                    System.out.println("Opção Inválida");
+	            }
+	            System.out.println("Vc quer Sair? (s ou n)");
+	            menu = teclado.nextLine();
+	        }
+
+	}
+
+}

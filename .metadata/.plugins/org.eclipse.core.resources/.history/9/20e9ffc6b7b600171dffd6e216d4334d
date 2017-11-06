@@ -1,9 +1,0 @@
-
-import entity.User;
-package DAO;
-
-public class UserDAO {
-	public static boolean saveUser(User user){
-		return false;
-	}
-}

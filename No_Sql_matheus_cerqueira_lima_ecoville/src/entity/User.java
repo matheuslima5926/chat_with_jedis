@@ -7,16 +7,23 @@ public class User {
 	
 	private String nickname;
 	private String name;
-	private LocalDate registerDate;
-	private ArrayList<Message> messages;
+	private String registerDate;
+	private ArrayList<String> messagesRecived;
+	private ArrayList<String> messagesSended;
 	
+	public ArrayList<String> getMessagesSended() {
+		return messagesSended;
+	}
+	public void setMessagesSended(ArrayList<String> messagesSended) {
+		this.messagesSended = messagesSended;
+	}
 	public String getNickname() {
 		return nickname;
 	}
-	public LocalDate getRegisterDate() {
+	public String getRegisterDate() {
 		return registerDate;
 	}
-	public void setRegisterDate(LocalDate localDate) {
+	public void setRegisterDate(String localDate) {
 		this.registerDate = localDate;
 	}
 	public void setNickname(String nickname) {
@@ -29,11 +36,11 @@ public class User {
 		this.name = name;
 	}
 	
-	public ArrayList<Message> getMessages() {
-		return messages;
+	public ArrayList<String> getMessagesRecived() {
+		return messagesRecived;
 	}
-	public void setMessages(ArrayList<Message> messages) {
-		this.messages = messages;
+	public void setMessagesRecived(ArrayList<String> messagesRecived) {
+		this.messagesRecived = messagesRecived;
 	} 
  
 }

@@ -1,0 +1,62 @@
+package DAO;
+
+import static com.oracle.jrockit.jfr.ContentType.Timestamp;
+import java.security.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ *
+ * @author sdjea
+ */
+public class Usuario1 {
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getApelido() {
+        return apelido;
+    }
+
+    public void setApelido(String apelido) {
+        this.apelido = apelido;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public List<String> getMsgenviadas() {
+        return msgenviadas;
+    }
+
+    public void setMsgenviadas(List<String> msgenviadas) {
+        this.msgenviadas = msgenviadas;
+    }
+
+    public List<String> getMsgrecebidas() {
+        return msgrecebidas;
+    }
+
+    public void setMsgrecebidas(List<String> msgrecebidas) {
+        this.msgrecebidas = msgrecebidas;
+    }
+    //objeto usuario
+    Date date = new Date();
+    public String nome;
+    public String apelido;
+    public String data;
+    public List<String> msgenviadas = new ArrayList<String>();
+    public List<String> msgrecebidas = new ArrayList<String>();
+}
+}

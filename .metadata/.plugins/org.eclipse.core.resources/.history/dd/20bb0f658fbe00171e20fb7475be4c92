@@ -1,0 +1,50 @@
+package DAO;
+
+import java.lang.reflect.Array;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import com.google.gson.Gson;
+
+import entity.User;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisException;
+
+public class UserDAO {
+	private static Jedis dao = JedisDAO.connectJedis("localhost");
+	private static Gson json = new Gson(); //faz o parse do objeto para json
+	public static boolean saveUser(User user){
+		try{
+			if(user.getName().isEmpty() || user.getName().isEmpty()){
+				return false;
+			}
+			user.setName(user.getName().trim().toLowerCase().toString());
+			user.setNickname(user.getNickname().trim().toLowerCase().toString());
+			if(user.getRegisterDate() == null){
+				user.setRegisterDate(LocalDate.now());
+			}
+			
+			ArrayList<String>userObj = new ArrayList<>();
+			
+			dao.set("user:",user.getNickname(), json.toJson(user.getName(),user.getRegisterDate()));
+			 return true;
+			
+		}catch(JedisException exception){
+			throw exception;
+		}
+	}
+	public static String findUserByNick(User user){
+		if(user.getNickname().isEmpty()){
+			return null;	
+		}
+		return dao.get("user:"+user.getNickname());
+	}
+	
+	public static String getAllUsers(){
+		return dao.get("user/nickname");
+	}
+}
